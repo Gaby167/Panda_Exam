@@ -9,13 +9,19 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(shape_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_executable(move_panda_ik src/move_panda_ik.cpp)
 ament_target_dependencies(move_panda_ik
   rclcpp
   moveit_ros_planning_interface
+  moveit_msgs
   geometry_msgs
+  shape_msgs
+  tf2_geometry_msgs
 )
 
 install(TARGETS move_panda_ik

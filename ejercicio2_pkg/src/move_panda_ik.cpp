@@ -3,108 +3,129 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <geometry_msgs/msg/pose.hpp>
 #include <moveit_msgs/msg/collision_object.hpp>
-
+#include <shape_msgs/msg/solid_primitive.hpp>
 #include <iostream>
-using namespace std;
-
-void addObstacles(moveit::planning_interface::PlanningSceneInterface& planning_scene_interface)
-{
-    moveit_msgs::msg::CollisionObject box1, box2;
-    box1.id = "box1";
-    box1.header.frame_id = "panda_link0";
-
-    shape_msgs::msg::SolidPrimitive primitive;
-    primitive.type = primitive.BOX;
-    primitive.dimensions = {0.2, 0.2, 0.2};  // Tamaño del cubo
-
-    geometry_msgs::msg::Pose box1_pose;
-    box1_pose.position.x = 0.4;
-    box1_pose.position.y = 0.0;
-    box1_pose.position.z = 0.3;
-    box1_pose.orientation.w = 1.0;
-
-    box1.primitives.push_back(primitive);
-    box1.primitive_poses.push_back(box1_pose);
-    box1.operation = box1.ADD;
-
-    box2 = box1;
-    box2.id = "box2";
-    box2.primitive_poses[0].position.x = 0.0;
-    box2.primitive_poses[0].position.y = -0.4;
-
-    planning_scene_interface.applyCollisionObjects({box1, box2});
-    RCLCPP_INFO(rclcpp::get_logger("move_panda"), "Obstáculos añadidos");
-}
-
-geometry_msgs::msg::Pose createPose(double x, double y, double z, double w)
-{
-    geometry_msgs::msg::Pose pose;
-    pose.position.x = x;
-    pose.position.y = y;
-    pose.position.z = z;
-
-    // Usamos orientación simplificada
-    pose.orientation.x = 0.0;
-    pose.orientation.y = 0.0;
-    pose.orientation.z = 0.0;
-    pose.orientation.w = w;
-
-    return pose;
-}
 
 int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
-    auto node = rclcpp::Node::make_shared("move_panda_ik_node");
+    rclcpp::NodeOptions node_options;
+    auto node = rclcpp::Node::make_shared("panda_inverse_kinematics", node_options);
 
     moveit::planning_interface::MoveGroupInterface move_group(node, "panda_arm");
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
 
-    move_group.setPlanningTime(10.0);
+    move_group.setPlanningTime(20.0);
     move_group.setMaxVelocityScalingFactor(0.5);
     move_group.setMaxAccelerationScalingFactor(0.5);
 
-    addObstacles(planning_scene_interface);
+    // Añadir obstáculos
 
-    while (rclcpp::ok()) {
-        cout << "\n--- MENÚ ---" << endl;
-        cout << "1. Mover a Posición 1" << endl;
-        cout << "2. Mover a Posición 2" << endl;
-        cout << "3. Mover a Posición 3" << endl;
-        cout << "4. Ingresar posición manual" << endl;
-        cout << "5. Salir" << endl;
-        cout << "Seleccione una opción: ";
+    // Objeto 1:
+    moveit_msgs::msg::CollisionObject obstacle1;
+    obstacle1.id = "obstacle1";
+    obstacle1.header.frame_id = "panda_link0";
+
+    shape_msgs::msg::SolidPrimitive primitive1;
+    primitive1.type = primitive1.BOX;
+    primitive1.dimensions = {0.1, 0.1, 0.1};  // tamaño del cubo
+
+    geometry_msgs::msg::Pose pose1;
+    pose1.position.x = 0.1;
+    pose1.position.y = 0.4;
+    pose1.position.z = 0.6;
+    pose1.orientation.w = 1.0;
+
+    obstacle1.primitives.push_back(primitive1);
+    obstacle1.primitive_poses.push_back(pose1);
+    obstacle1.operation = obstacle1.ADD;
+
+    // Objeto 2: 
+    moveit_msgs::msg::CollisionObject obstacle2;
+    obstacle2.id = "obstacle2";
+    obstacle2.header.frame_id = "panda_link0";
+
+    shape_msgs::msg::SolidPrimitive primitive2;
+    primitive2.type = primitive2.BOX;
+    primitive2.dimensions = {0.1, 0.1, 0.1};
+
+    geometry_msgs::msg::Pose pose2;
+    pose2.position.x = 0.1;
+    pose2.position.y = 0.1;
+    pose2.position.z = 1.1;
+    pose2.orientation.w = 1.0;
+
+    obstacle2.primitives.push_back(primitive2);
+    obstacle2.primitive_poses.push_back(pose2);
+    obstacle2.operation = obstacle2.ADD;
+
+    // Añadir a la escena
+    planning_scene_interface.applyCollisionObjects({obstacle1, obstacle2});
+
+    while (rclcpp::ok())
+    {
+        std::cout << "\n--- MENÚ ---\n";
+        std::cout << "1. Mover a Posición 1\n";
+        std::cout << "2. Mover a Posición 2\n";
+        std::cout << "3. Mover a Posición 3\n";
+        std::cout << "4. Ingresar posición manual\n";
+        std::cout << "5. Salir\n";
+        std::cout << "Seleccione una opción: ";
 
         int opcion;
-        cin >> opcion;
+        std::cin >> opcion;
 
         geometry_msgs::msg::Pose target_pose;
+        bool ejecutar = true;
 
-        if (opcion == 1) {
-            target_pose = createPose(-0.58, 0.2, 0.5, 0.5);
-        } else if (opcion == 2) {
-            target_pose = createPose(0.9, 0.4, 0.1, 0.3);
-        } else if (opcion == 3) {
-            target_pose = createPose(0.1, 0.2, 0.9, 0.0);
-        } else if (opcion == 4) {
-            double x, y, z, w;
-            cout << "Ingrese x y z w separados por espacio: ";
-            cin >> x >> y >> z >> w;
-            target_pose = createPose(x, y, z, w);
-        } else if (opcion == 5) {
-            break;
-        } else {
-            cout << "Opción inválida." << endl;
-            continue;
+        switch (opcion)
+        {
+            case 1:
+                target_pose.position.x = -0.58;
+                target_pose.position.y = 0.2;
+                target_pose.position.z = 0.5;
+                target_pose.orientation.w = 0.5;
+                break;
+
+            case 2:
+                target_pose.position.x = 0.6;
+                target_pose.position.y = 0.3;
+                target_pose.position.z = 0.1;
+                target_pose.orientation.w = 0.3;
+                break;
+
+            case 3:
+                target_pose.position.x = 0.1;
+                target_pose.position.y = 0.2;
+                target_pose.position.z = 0.9;
+                target_pose.orientation.w = 0.0;
+                break;
+
+            case 4:
+                std::cout << "Ingrese x y z w separados por espacio: ";
+                std::cin >> target_pose.position.x >> target_pose.position.y >> target_pose.position.z >> target_pose.orientation.w;
+                break;
+
+            case 5:
+                std::cout << "Saliendo del programa.\n";
+                rclcpp::shutdown();
+                return 0;
+
+            default:
+                std::cout << "Opción inválida. Intente nuevamente.\n";
+                ejecutar = false;
         }
 
-        move_group.setPoseTarget(target_pose);
+        if (ejecutar)
+        {
+            move_group.setPoseTarget(target_pose);
+            auto result = move_group.move();
 
-        auto success = (move_group.move() == moveit::core::MoveItErrorCode::SUCCESS);
-        if (success)
-            cout << "Movimiento exitoso." << endl;
-        else
-            cout << "Fallo al planear el movimiento. No se pudo alcanzar el objetivo." << endl;
+            if (!result)
+            {
+                std::cout << "Fallo al planear el movimiento. No se pudo alcanzar el objetivo.\n";
+            }
+        }
     }
 
     rclcpp::shutdown();
