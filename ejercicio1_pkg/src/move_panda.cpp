@@ -4,8 +4,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
     rclcpp::init(argc, argv);
     auto node = rclcpp::Node::make_shared("move_panda_node");
     rclcpp::executors::SingleThreadedExecutor executor;
@@ -34,22 +33,29 @@ int main(int argc, char** argv)
 
         std::vector<double> joint_values(7);
         
-        // Mínimos {-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973}
-        // Máximos { 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973}
-        if (opcion == 1) {
-            joint_values = {0.0, 0.0, 0.0, 0.0, 0.0, 3.14, 0.78};
-        } else if (opcion == 2) {
-            joint_values = {0.0, 1.57, 0.0, 0.0, 0.0, 3.14, 0.78};
-        } else if (opcion == 3) {
-            cout << "Ingrese 7 valores de articulaciones separados por espacio:" << endl;
-            for (int i = 0; i < 7; ++i) {
-                cin >> joint_values[i];
-            }
-        } else if (opcion == 4) {
-            break;
-        } else {
-            cout << "Opción inválida." << endl;
-            continue;
+        switch (opcion) {
+            case 1:
+                joint_values = {0.0, 0.0, 0.0, 0.0, 0.0, 3.14, 0.78};
+                break;
+
+            case 2:
+                joint_values = {0.0, 1.57, 0.0, 0.0, 0.0, 3.14, 0.78};
+                break;
+
+            case 3:
+                cout << "Ingrese 7 valores de articulaciones separados por espacio:" << endl;
+                for (int i = 0; i < 7; ++i) {
+                    cin >> joint_values[i];
+                }
+                break;
+
+            case 4:
+                rclcpp::shutdown();
+                return 0;
+
+            default:
+                cout << "Opción inválida." << endl;
+                continue;
         }
 
         move_group.setJointValueTarget(joint_values);

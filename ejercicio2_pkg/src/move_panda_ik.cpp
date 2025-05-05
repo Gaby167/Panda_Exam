@@ -6,8 +6,7 @@
 #include <shape_msgs/msg/solid_primitive.hpp>
 #include <iostream>
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
     rclcpp::init(argc, argv);
     rclcpp::NodeOptions node_options;
     auto node = rclcpp::Node::make_shared("panda_inverse_kinematics", node_options);
@@ -62,8 +61,7 @@ int main(int argc, char** argv)
     // Añadir a la escena
     planning_scene_interface.applyCollisionObjects({obstacle1, obstacle2});
 
-    while (rclcpp::ok())
-    {
+    while (rclcpp::ok()){
         std::cout << "\n--- MENÚ ---\n";
         std::cout << "1. Mover a Posición 1\n";
         std::cout << "2. Mover a Posición 2\n";
@@ -116,8 +114,7 @@ int main(int argc, char** argv)
                 ejecutar = false;
         }
 
-        if (ejecutar)
-        {
+        if (ejecutar){
             move_group.setPoseTarget(target_pose);
             auto result = move_group.move();
 
