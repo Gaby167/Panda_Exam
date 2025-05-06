@@ -10,10 +10,10 @@ int main(int argc, char** argv){
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
 
-    // Interfaz de grupo para el brazo Panda
+    // Interfaz para el brazo Panda
     moveit::planning_interface::MoveGroupInterface move_group(node, "panda_arm");
 
-    // Opcional: nombre del planner
+    // Nombre del planner
     move_group.setPlannerId("RRTConnectkConfigDefault");
 
     // Velocidad y aceleración reducida

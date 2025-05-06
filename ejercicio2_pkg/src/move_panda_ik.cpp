@@ -14,7 +14,7 @@ int main(int argc, char** argv){
     moveit::planning_interface::MoveGroupInterface move_group(node, "panda_arm");
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
 
-    move_group.setPlanningTime(20.0);
+    move_group.setPlanningTime(10.0);
     move_group.setMaxVelocityScalingFactor(0.5);
     move_group.setMaxAccelerationScalingFactor(0.5);
 
@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 
     shape_msgs::msg::SolidPrimitive primitive1;
     primitive1.type = primitive1.BOX;
-    primitive1.dimensions = {0.1, 0.1, 0.1};  // tamaño del cubo
+    primitive1.dimensions = {0.1, 0.1, 0.1};    // tamaño del cubo
 
     geometry_msgs::msg::Pose pose1;
     pose1.position.x = 0.1;
@@ -46,7 +46,8 @@ int main(int argc, char** argv){
 
     shape_msgs::msg::SolidPrimitive primitive2;
     primitive2.type = primitive2.BOX;
-    primitive2.dimensions = {0.1, 0.1, 0.1};
+    primitive2.dimensions = {0.1, 0.1, 0.1};    // tamaño del cubo
+
 
     geometry_msgs::msg::Pose pose2;
     pose2.position.x = 0.1;
